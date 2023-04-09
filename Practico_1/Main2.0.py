@@ -41,6 +41,6 @@ def automata(cadena):
 
 
 if __name__ == '__main__':
-    for number in ['120379$', '+120379$', '-120379$', '120379e14$', '120379e-14$', '120379e+14$']:
+    for number in ['120379$', '+120379$', '-120379$', '120379e14$', '120379e-14$', '120379e+14$', '12.0379$', '1203.79e-14$']:
         print(automata(number)[1])
         input("Presione cualquier tecla para continuar")
