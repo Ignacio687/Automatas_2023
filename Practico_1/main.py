@@ -3,8 +3,10 @@ Usando una matriz de transición. Para implementar la matriz de transición en P
 [[2,1,1,'','',''],
 [2,'','','','' ,'']
 ['acepta', 'acepta', 'acepta', 'acepta', 'acepta','acepta']]"""
+
 import time
-T = [
+
+matriz = [
     ['2', '1', '1', ' ', ' ',' '],
     ['2', ' ', ' ', ' ', ' ',' '],
     ['2', ' ', ' ', '3', '5','8'],
@@ -15,34 +17,32 @@ T = [
     ['7', ' ', ' ', ' ', ' ','8'],
     ['acepta','acepta','acepta','acepta','acepta','acepta','acepta','acepta']
 ]
+
 def automata(cadena):
-    print(f'Analizando la cadena {cadena}')
-    cadena = cadena
+    cadena = str(cadena)
     estado_actual = 0
     columna = 0
-    pos = 0
-    while True:
-        if [pos].isdigit():
-            columna = 0
-        elif cadena[pos] == '+':
-            columna = 1
-        elif cadena[pos] == '-':
-            columna = 2
-        elif cadena[pos] == '.':
-            columna = 3
-        elif cadena[pos].lower() == 'e':
-            columna = 4
-        elif cadena[pos] == '$':
-            columna = 5
-        else:
-            return False
-        print(f'Estado actual: {estado_actual}\n Columna: {columna}\n Letra{cadena[pos]}')
-        time.sleep(0.5)
-        estado_actual = T[estado_actual][columna]
+    caracteres = ['+', '-', '.', 'e', '$']
+    for pos in range(0, len(cadena)+1):
+        try:
+            if cadena[pos].isdigit():
+                columna = 0
+            elif cadena[pos] in caracteres:
+                columna = caracteres.index(cadena[pos])+1
+            else: 
+                raise ValueError
+        except (IndexError, ValueError) as e:
+            return False, f'{cadena} no es un número identificable'
+    
+        #print(f'Estado actual: {estado_actual}\n Columna: {columna}\n Caracter{cadena[pos]}')
+        estado_actual = matriz[int(estado_actual)][columna]
         if estado_actual == ' ':
-            return False
+            return False, f'{cadena} no es un número identificable'
         if estado_actual == '8':
-            return True
-        pos += 1
+            return True, f'{cadena} es un número'
+
+
 if __name__ == '__main__':
-    print(automata('123$'))
+    numeros_test = ['1ab2$','12.e4$','a1$','1e12e0$','++$','e12$','120379$', '+120379$', '-120379$', '120379e14$', '120379e-14$', '120379e+14$', '12.0379$', '1203.79e-14$']
+    for number in numeros_test:
+        print(automata(number)[1])
