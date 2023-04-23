@@ -22,15 +22,16 @@ class FormatValidator:
         regex = re.compile(exp)
         return regex.match(date)
 
-    def number(self, number):
+    def number(self, number): 
         regex = re.compile(r"jpg|png|gif|bmp|svg")
         return regex.match(number)
 
-    def yt_video(self, video):
+    def yt_video(self, video): 
         regex = re.compile(r"jpg|png|gif|bmp|svg")
         return regex.match(video)
 
-    def mail(self, mail):
+# TOOOM
+    def mail(self, mail): 
         regex = re.compile(r"jpg|png|gif|bmp|svg")
         return regex.match(mail)
 
@@ -38,6 +39,7 @@ class FormatValidator:
         regex = re.compile(r"jpg|png|gif|bmp|svg")
         return regex.match(phone)
 
+# nACho
     def cuil(self, cuil):
         regex = re.compile(r"jpg|png|gif|bmp|svg")
         return regex.match(cuil)
