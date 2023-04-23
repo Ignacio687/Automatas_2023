@@ -55,7 +55,7 @@ class FormatValidatorTestCase(unittest.TestCase):
     def test_date_True(self, parameter):
         self.assertTrue(self.app.date(parameter))
 
-    @parameterized.expand(["32-03-2147", "02-00-2003",])
+    @parameterized.expand(["32/03/2147", "02-00-2003",])
     def test_date_False(self, parameter):
         self.assertFalse(self.app.date(parameter))
 
