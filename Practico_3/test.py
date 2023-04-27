@@ -1,5 +1,5 @@
 import unittest
-from tp3 import *
+from ejercicio1 import *
 
 class TestTP3(unittest.TestCase):
     def test_00(self):
