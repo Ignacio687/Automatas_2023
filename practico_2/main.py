@@ -46,7 +46,14 @@ class FormatValidatorTestCase(unittest.TestCase):
     def setUp(self):
         self.app = FormatValidator()
 
-    @parameterized.expand(["20/12/2020", "03-02-9000", "31/09/2020"])
+    @parameterized.expand(
+        [
+            "20/12/2020", 
+            "03-02-9000", 
+            "31/09/2020",
+            "30-02-2017"
+        ]
+    )
     def test_date_True(self, parameter):
         self.assertTrue(self.app.date(parameter))
 
@@ -67,12 +74,25 @@ class FormatValidatorTestCase(unittest.TestCase):
         self.assertIsNone(self.app.date(parameter))
 
     @parameterized.expand(
-        ["123.432,12", "900.001,01", "4.123,12", "50.000,00", "1.000,00", "1.000.000,00"]
+        [
+            "123.432,12", 
+            "900.001,01", 
+            "4.123,12", 
+            "50.000,00", 
+            "1.000,00", 
+            "1.000.000,00"
+         ]
     )
     def test_number_True(self, parameter):
         self.assertTrue(self.app.number(parameter))
 
-    @parameterized.expand(["123.231,123", "1234.123,12", "412.1234,12"])
+    @parameterized.expand(
+        [
+            "123.231,123", 
+            "1234.123,12", 
+            "412.1234,12"
+        ]
+    )
     def test_number_False(self, parameter):
         self.assertIsNone(self.app.number(parameter))
 
@@ -80,6 +100,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         [
             "PR_ykicOZYU",
             "vw-KWfKwvTQ",
+            "dA-K46f7wQV"
         ]
     )
     def test_yt_video_True(self, parameter):
@@ -98,6 +119,8 @@ class FormatValidatorTestCase(unittest.TestCase):
         [
             "m.boldrini@alumno.um.edu.ar",
             "t.bourguet@alumno.um.edu.ar",
+            "i.chavez@alumno.um.edu.ar",
+            "l.brasolin@alumno.um.edu.ar"
         ]
     )
     def test_mail_True(self, parameter):
@@ -107,6 +130,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         [
             "matias.boldrini@alumno.um.edu.ar",
             "t.bourguet@alumno.um",
+            "t.bourguet@alumno.ar.um.edu",
             "t.bourguet@alumno.um.edu.",
         ]
     )
@@ -117,6 +141,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         [
             "542613449543",
             "542615345151",
+            "540345494976"
         ]
     )
     def test_phone_True(self, parameter):
@@ -137,6 +162,8 @@ class FormatValidatorTestCase(unittest.TestCase):
         [
             "27-28033514-8",
             "23-44438082-9",
+            "30-48137808-7",
+            "30-00000000-8"
         ]
     )
     def test_cuil_True(self, parameter):
@@ -148,7 +175,7 @@ class FormatValidatorTestCase(unittest.TestCase):
             "27-280335148",
             "271-28033514-8",
             "2-28033514-8",
-            "27-2803514-8",
+            "27-onononov-8",
         ]
     )
     def test_cuil_False(self, parameter):
@@ -158,13 +185,20 @@ class FormatValidatorTestCase(unittest.TestCase):
         [
             "Hola%2002",
             "Visualcode_1",
+            "HOLAc@p0",
         ]
     )
     def test_password_True(self, parameter):
         self.assertTrue(self.app.password(parameter))
 
     @parameterized.expand(
-        ["Hola2002", "Visual%Studio%Code", "hola_2002", "Hola_2", "test"]
+        [
+            "Hola2002", 
+            "Visual%Studio%Code", 
+            "hola_2002", 
+            "Hola_2", 
+            "test"
+        ]
     )
     def test_password_False(self, parameter):
         self.assertIsNone(self.app.password(parameter))
