@@ -11,35 +11,35 @@ class FormatValidator:
     def date(self, date):
         exp = r"^(0?[1-9]|[12][0-9]|3[01])([/-])(0?[1-9]|1[012])\2(\d{4})$"
         regex = re.compile(exp)
-        return regex.match(date) is not None
+        return regex.match(date) 
 
     def number(self, number):
         regex = re.compile(r"^((\d{1,3})[.])*(\d{3}),(\d{2})$")
-        return regex.match(number) is not None
+        return regex.match(number) 
 
     def yt_video(self, video):
         regex = re.compile(r"([\w-]{11})$")
         result = regex.search(video)
-        return regex.match(video) is not None
+        return regex.match(video) 
 
     # TOOOM
     def mail(self, mail):
         # Cuenta de Email de alumno de la Universidad de Mendoza
         regex = re.compile(r"^([a-z]{1,2})\.[a-z]+@alumno\.um\.edu\.ar$")
-        return regex.match(mail) is not None
+        return regex.match(mail) 
 
     def phone(self, phone):
         regex = re.compile(r"^54[023]\d\d(\d){7}$")
-        return regex.match(phone) is not None
+        return regex.match(phone) 
 
     # nACho
     def cuil(self, cuil):
         regex = re.compile(r"^(20|23|24|27|30)\-(\d){8}\-\d$")
-        return regex.match(cuil) is not None
+        return regex.match(cuil) 
 
     def password(self, password):
         regex = re.compile(r"^(?=.*\d)(?=.*[A-Z])(?=.*[!@#$%^&*()_+]).{8,16}$")
-        return regex.match(password) is not None
+        return regex.match(password) 
 
 
 class FormatValidatorTestCase(unittest.TestCase):
@@ -64,7 +64,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         ]
     )
     def test_date_False(self, parameter):
-        self.assertFalse(self.app.date(parameter))
+        self.assertIsNone(self.app.date(parameter))
 
     @parameterized.expand(
         ["123.432,12", "900.001,01", "4.123,12", "50.000,00", "1.000,00", "1.000.000,00"]
@@ -74,7 +74,7 @@ class FormatValidatorTestCase(unittest.TestCase):
 
     @parameterized.expand(["123.231,123", "1234.123,12", "412.1234,12"])
     def test_number_False(self, parameter):
-        self.assertFalse(self.app.number(parameter))
+        self.assertIsNone(self.app.number(parameter))
 
     @parameterized.expand(
         [
@@ -92,7 +92,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         ]
     )
     def test_yt_video_False(self, parameter):
-        self.assertFalse(self.app.yt_video(parameter))
+        self.assertIsNone(self.app.yt_video(parameter))
 
     @parameterized.expand(
         [
@@ -111,7 +111,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         ]
     )
     def test_mail_False(self, parameter):
-        self.assertFalse(self.app.mail(parameter))
+        self.assertIsNone(self.app.mail(parameter))
 
     @parameterized.expand(
         [
@@ -131,7 +131,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         ]
     )
     def test_phone_False(self, parameter):
-        self.assertFalse(self.app.phone(parameter))
+        self.assertIsNone(self.app.phone(parameter))
 
     @parameterized.expand(
         [
@@ -152,7 +152,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         ]
     )
     def test_cuil_False(self, parameter):
-        self.assertFalse(self.app.cuil(parameter))
+        self.assertIsNone(self.app.cuil(parameter))
 
     @parameterized.expand(
         [
@@ -167,7 +167,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         ["Hola2002", "Visual%Studio%Code", "hola_2002", "Hola_2", "test"]
     )
     def test_password_False(self, parameter):
-        self.assertFalse(self.app.password(parameter))
+        self.assertIsNone(self.app.password(parameter))
 
 
 if __name__ == "__main__":
