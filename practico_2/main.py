@@ -6,7 +6,6 @@ import unittest
 from parameterized import parameterized
 import re
 
-
 class FormatValidator:
     def date(self, date):
         exp = r"^(0?[1-9]|[12][0-9]|3[01])([/-])(0?[1-9]|1[012])\2(\d{4})$"
@@ -18,29 +17,26 @@ class FormatValidator:
         return regex.match(number) 
 
     def yt_video(self, video):
-        regex = re.compile(r"([\w-]{11})$")
+        regex = re.compile(r"^([\w-]{11})$")
         result = regex.search(video)
         return regex.match(video) 
 
-    # TOOOM
     def mail(self, mail):
         # Cuenta de Email de alumno de la Universidad de Mendoza
         regex = re.compile(r"^([a-z]{1,2})\.[a-z]+@alumno\.um\.edu\.ar$")
         return regex.match(mail) 
 
     def phone(self, phone):
-        regex = re.compile(r"^54[023]\d\d(\d){7}$")
+        regex = re.compile(r"^54[023](\d){9}$")
         return regex.match(phone) 
 
-    # nACho
     def cuil(self, cuil):
         regex = re.compile(r"^(20|23|24|27|30)\-(\d){8}\-\d$")
         return regex.match(cuil) 
 
     def password(self, password):
         regex = re.compile(r"^(?=.*\d)(?=.*[A-Z])(?=.*[!@#$%^&*()_+]).{8,16}$")
-        return regex.match(password) 
-
+        return regex.match(password)
 
 class FormatValidatorTestCase(unittest.TestCase):
     def setUp(self):
@@ -119,7 +115,7 @@ class FormatValidatorTestCase(unittest.TestCase):
         [
             "m.boldrini@alumno.um.edu.ar",
             "t.bourguet@alumno.um.edu.ar",
-            "i.chavez@alumno.um.edu.ar",
+            "i.chaves@alumno.um.edu.ar",
             "l.brasolin@alumno.um.edu.ar"
         ]
     )
