@@ -30,12 +30,16 @@ class PredictiveSyntaxAnalyzer():
         if len(string_list) == 0:
             raise InvalidSyntax
         lifo = ["$", "E"]
+        num_flag = False
         for element in string_list:
             try:
                 element = int(element)
+                if num_flag:
+                    continue
                 element = "num"
+                num_flag = True
             except ValueError:
-                pass
+                num_flag = False
             while element != lifo[-1]:
                 char_list = self.findTableValue(lifo[-1], element)
                 if char_list[0] == "e":
@@ -60,5 +64,11 @@ class Calculator(PredictiveSyntaxAnalyzer):
     def __init__(self):
         super.__init__(self)
     
-    def calculate(self):
-        pass
+    def calculate(self, string: str) -> int:
+        if self.analyze(string):
+            return f'La sintaxis es correcta, el resultado de la operacion es: {eval(string)}'
+        else: return f'La sintaxis no es correcta'
+
+if __name__ == "__main__":
+    app = Calculator()
+    app.calculate("((90+5)+77)%3+22")
