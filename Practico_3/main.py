@@ -30,6 +30,7 @@ class PredictiveSyntaxAnalyzer():
         if len(string_list) == 0:
             raise InvalidSyntax
         lifo = ["$", "E"]
+        tree = {}
         for i, element in enumerate(string_list):
             if element.isdigit():
                 if string_list[i-1].isdigit():
@@ -40,14 +41,18 @@ class PredictiveSyntaxAnalyzer():
                     lifo.pop()
                     break
                 elif lifo[-1] == "$":
-                    return True
-                char_list = self.findTableValue(lifo.pop(), element)
+                    return True, tree
+                non_ter = lifo.pop()
+                char_list = self.findTableValue(non_ter, element)
+                if non_ter not in tree.keys():
+                    tree[non_ter] = set(char_list)
+                val = set(char_list)
+                tree[non_ter].union(val)
                 lifo.extend(char_list)
                 if lifo[-1] == "e":
                     lifo.pop()
                 elif lifo[-1] == "":
                     raise InvalidSyntax(f"Invalid Syntax: '{string_list[i-1]+string_list[i]}'")
-
     def findTableValue(self, lifo: str, char: str) -> list:
         try:
             index = self.table.get("character").index(char)
@@ -62,8 +67,8 @@ class Calculator(PredictiveSyntaxAnalyzer):
     
     def calculate(self, string: str):
         try:
-            self.analyze(string)
-            return(f'La sintaxis es correcta, el resultado de la operacion es: {eval(string.strip("$"))}')
+            tree = self.analyze(string)[1]
+            return(f'La sintaxis es correcta, el resultado de la operacion es: {eval(string.strip("$"))}'), tree
         except Exception as e:
             return(e)
 
@@ -82,7 +87,10 @@ class UserInterface(Calculator):
 
     def ask_input(self):
         string = input("Ingrese una expresion a calcular ")+"$"
-        print(self.calculate(string))
+        resol, tree = self.calculate(string)
+        print(resol)
+        print(tree)
+
 
 
 if __name__ == "__main__":
