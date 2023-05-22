@@ -21,7 +21,7 @@ class PredictiveSyntaxAnalyzerTestCase(unittest.TestCase):
         with self.assertRaises(InvalidCharacter):
             self.app.analyze(param)
 
-    @parameterized.expand(["10+5", "((90+5)+77)%3+22", "28876+28"])
+    @parameterized.expand(["10+5$", "((90+5)+77)%3+22$", "28876+28$", "5+2%((4523-298)%23)-10293$"])
     def test_validSyntax(self, param):
         self.assertTrue(self.app.analyze(param))
 

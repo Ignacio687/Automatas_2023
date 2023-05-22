@@ -30,45 +30,61 @@ class PredictiveSyntaxAnalyzer():
         if len(string_list) == 0:
             raise InvalidSyntax
         lifo = ["$", "E"]
-        num_flag = False
-        for element in string_list:
-            try:
-                element = int(element)
-                if num_flag:
+        for i, element in enumerate(string_list):
+            if element.isdigit():
+                if string_list[i-1].isdigit():
                     continue
                 element = "num"
-                num_flag = True
-            except ValueError:
-                num_flag = False
-            while element != lifo[-1]:
-                char_list = self.findTableValue(lifo[-1], element)
-                if char_list[0] == "e":
+            while True:
+                if lifo[-1] in ["num", "+", "-", "%", "(", ")"]:
                     lifo.pop()
-                elif char_list[0] == "":
-                    raise InvalidSyntax
-                else:
+                    break
+                elif lifo[-1] == "$":
+                    return True
+                char_list = self.findTableValue(lifo.pop(), element)
+                lifo.extend(char_list)
+                if lifo[-1] == "e":
                     lifo.pop()
-                    lifo.extend(char_list)
-            lifo.pop()
-        return True
+                elif lifo[-1] == "":
+                    raise InvalidSyntax(f"Invalid Syntax: '{string_list[i-1]+string_list[i]}'")
 
     def findTableValue(self, lifo: str, char: str) -> list:
         try:
             index = self.table.get("character").index(char)
             return self.table.get(lifo)[index].split(" ")[::-1]
         except ValueError:
-            raise InvalidCharacter(f"{char} is not in the list of recognized characters")
+            raise InvalidCharacter(f"'{char}' is not in the list of recognized characters")
 
 
 class Calculator(PredictiveSyntaxAnalyzer):
     def __init__(self):
-        super.__init__(self)
+        super().__init__()
     
-    def calculate(self, string: str) -> int:
-        if self.analyze(string):
-            return f'La sintaxis es correcta, el resultado de la operacion es: {eval(string)}'
-        else: return f'La sintaxis no es correcta'
+    def calculate(self, string: str):
+        try:
+            self.analyze(string)
+            return(f'La sintaxis es correcta, el resultado de la operacion es: {eval(string.strip("$"))}')
+        except Exception as e:
+            return(e)
+
+class UserInterface(Calculator):
+    def __init__(self):
+        super().__init__()
+
+    def run(self) -> None:
+        while True:
+            self.ask_input()
+            user_input = input("Desea calcular otra expresion y/n ")
+            if user_input in ["y", "Y"]:
+                continue
+            elif user_input in ["n", "N"]:
+                exit()
+
+    def ask_input(self):
+        string = input("Ingrese una expresion a calcular ")+"$"
+        print(self.calculate(string))
+
 
 if __name__ == "__main__":
-    app = Calculator()
-    app.calculate("((90+5)+77)%3+22")
+    app = UserInterface()
+    app.run()
