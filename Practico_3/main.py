@@ -37,22 +37,22 @@ class PredictiveSyntaxAnalyzer():
                     continue
                 element = "num"
             while True:
+                non_ter = lifo.pop()
+                char_list = self.findTableValue(non_ter, element)
+                lifo.extend(char_list)
+                if lifo[-1] == "":
+                    raise InvalidSyntax(f"Invalid Syntax: '{string_list[i-1]+string_list[i]}'")
+                if non_ter not in tree.keys():
+                    tree[non_ter] = set(char_list)
+                tree[non_ter] = tree[non_ter] | (set(char_list))
+                if lifo[-1] == "e":
+                    lifo.pop()
                 if lifo[-1] in ["num", "+", "-", "%", "(", ")"]:
                     lifo.pop()
                     break
-                elif lifo[-1] == "$":
+                if lifo[-1] == "$":
                     return True, tree
-                non_ter = lifo.pop()
-                char_list = self.findTableValue(non_ter, element)
-                if non_ter not in tree.keys():
-                    tree[non_ter] = set(char_list)
-                val = set(char_list)
-                tree[non_ter].union(val)
-                lifo.extend(char_list)
-                if lifo[-1] == "e":
-                    lifo.pop()
-                elif lifo[-1] == "":
-                    raise InvalidSyntax(f"Invalid Syntax: '{string_list[i-1]+string_list[i]}'")
+
     def findTableValue(self, lifo: str, char: str) -> list:
         try:
             index = self.table.get("character").index(char)
@@ -70,18 +70,18 @@ class Calculator(PredictiveSyntaxAnalyzer):
             tree = self.analyze(string)[1]
             return(f'La sintaxis es correcta, el resultado de la operacion es: {eval(string.strip("$"))}'), tree
         except Exception as e:
-            return(e)
+            return(e), e
 
 class UserInterface(Calculator):
     def __init__(self):
         super().__init__()
 
     def run(self) -> None:
+        self.ask_input()
         while True:
-            self.ask_input()
             user_input = input("Desea calcular otra expresion y/n ")
             if user_input in ["y", "Y"]:
-                continue
+                self.ask_input()
             elif user_input in ["n", "N"]:
                 exit()
 
@@ -89,8 +89,7 @@ class UserInterface(Calculator):
         string = input("Ingrese una expresion a calcular ")+"$"
         resol, tree = self.calculate(string)
         print(resol)
-        print(tree)
-
+        print(f"El árbol sintáctico generado es el siguiente:\n{tree}")
 
 
 if __name__ == "__main__":
