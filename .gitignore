@@ -3,3 +3,4 @@ venv/
 *.pdf
 env
 settings.json
+.DS_Store
