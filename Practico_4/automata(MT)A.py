@@ -53,10 +53,10 @@ class MaquinaDeTuring():
             stringList[index] = new_values[1]
             index += 1 if new_values[2] in ["r","R"] else -1
             if (index+1 > len(stringList) or index < 0) and str(state) in self.endSts:
-                return [True, "".join(stringList), self.statesLog]
+                return [True, self.statesLog]
             elif stringList[index] == self.blank and str(state) in self.endSts:
-                return [True, "".join(stringList), self.statesLog]
-        return [False, "".join(stringList), self.statesLog]
+                return [True, self.statesLog]
+        return [False, self.statesLog]
 
     def changeSt(self, st, char: str) -> tuple:
         for index, key, value in enumerate(self.characters.items()):
@@ -64,7 +64,7 @@ class MaquinaDeTuring():
                 self.statesLog["Simbolo"].append(key)
                 break
             elif index == len(self.characters.keys()-1):
-                raise ValueError(f"{char} no está entre los caracteres reconocidos")
+                raise ValueError(f"'{char}' no está entre los caracteres reconocidos", self.statesLog)
         self.statesLog["Edo. Actual"].append(st)
         self.statesLog["Caracter"].append(char)
         try:
@@ -72,7 +72,7 @@ class MaquinaDeTuring():
             self.statesLog["Edo. Siguiente"].append(new_values[0])
             return new_values
         except KeyError:
-            raise CharacterNotPresentError(f"{char} no esta presente en ninguna transición")
+            raise CharacterNotPresentError(f"'{char}' no esta presente en ninguna transición", self.statesLog)
         
 
 class MaquinaDeTuringApp():
@@ -81,20 +81,26 @@ class MaquinaDeTuringApp():
 
     def run(self):
         print("Esta aplicacion interpreta maquinas de turing y las ejecuta para cumplir su proposito")
-        user_input = input("Si quiere probar una de las maquinas ya cargadas oprima 'enter', de lo contrario, si desea introducir su propia maquina ingrese 'nueva'  ")
-        if user_input in ["nueva", "Nueva", "NUEVA"]:
-            app = self.newTM()
-        else:
-            app = self.selectTM()
+        while type(app) == str:
+            user_input = input("Si quiere probar una de las maquinas ya cargadas oprima 'enter', de lo contrario, si desea introducir su propia maquina ingrese 'nueva'  ")
+            if user_input in ["nueva", "Nueva", "NUEVA"]:
+                app = self.newTM()
+            else:
+                app = self.selectTM()
         while True:
             user_input = input("Ingrese una cadena a evaluar y presione 'enter':  ")
             user_input2 = input("Si desea comenzar a analizar la cadena desde un caracter en particular ingrese el numero, sino presione 'enter' y comenzara por la izquierda:  ")
-            if user_input2 != "" and user_input2.isdigit():
-                result = app.analyse(user_input, user_input2)
-            else: 
-                result = app.analyse(user_input)
             print("\n"+user_input+"\n")
-            self.printer()
+            try:
+                if user_input2 != "" and user_input2.isdigit():
+                    self.printer(app.analyse(user_input, user_input2))
+                else: 
+                    self.printer(result = app.analyse(user_input))
+            except Exception as e:
+                self.printer(e.args)
+            user_input = input("Si desea ingresar una cadena nueva oprima el 'enter', sino ingrese 'no' para salir:  ")
+            if user_input in ["no", "No", "NO"]:
+                break
 
 
     def newTM(self):
@@ -139,28 +145,55 @@ class MaquinaDeTuringApp():
             if user_input == "":
                 print(caracteres)
                 break
-        app = MaquinaDeTuring(estado_inicial, estados_finales, caracter_vacio, caracteres, transiciones)
-        return app
-    
+        try:
+            app = MaquinaDeTuring(estado_inicial, estados_finales, caracter_vacio, caracteres, transiciones)
+            return app
+        except InitStateError as e:
+            print("\n\n"+"ERROR!!\n"+e.args[0]+"\n\n")
+            app = ""
+            return app
+        
     def selectTM(self):
         print("Seleccione una de las siguientes opciones")
         print("1) Maquina A, reconoce el lenguaje representado por esta expresion regular: 'x ( x | y ) *' (Automata ejercicio 2)a)")
         print("2) Maquina B, reconoce el lenguaje representado por esta expresion regular: '(C | AC) *' (Automata ejercicio 2)b)")
         print("3) Maquina C, reconoce el lenguaje representado por esta expresion regular: '(b | (b* a) *) a' (Automata ejercicio 2)c)")
         while True:
-            user_input = input("Ingrese el numero correspondiente a la maquina que desea utilizar:  ").replace(" ", "")
-            if user_input == "1":
-                transiciones = {("q1", "x"): ("q2", "x", "R"), ("q2", "x"): ("q2", "x", "R"), ("q2", "y"): ("q2", "y", "R"), ("q2", "B"): ("q3", "B", "R")}
-                app = MaquinaDeTuring("q1", ["q3"], "B", {"x":"x", "y":"y", "B":"B"}, transiciones)
+            try:
+                user_input = input("Ingrese el numero correspondiente a la maquina que desea utilizar:  ").replace(" ", "")
+                if user_input == "1":
+                    transiciones = {("q1", "x"): ("q2", "x", "R"), ("q2", "x"): ("q2", "x", "R"), ("q2", "y"): ("q2", "y", "R"), ("q2", "B"): ("q3", "B", "R")}
+                    app = MaquinaDeTuring("q1", ["q3"], "B", {"x":"x", "y":"y", "B":"B"}, transiciones)
+                    return app
+                elif user_input == "2":
+                    transiciones = {("q1", "A"): ("q2", "A", "R"), ("q1", "C"): ("q1", "C", "R"), ("q1", "B"): ("q3", "B", "R"), ("q2", "C"): ("q1", "C", "R")}
+                    app = MaquinaDeTuring("q1", ["q3"], "B", {"A":"A", "C":"C", "B":"B"}, transiciones)
+                    return app
+                elif user_input == "3":
+                    transiciones = {("q1", "a"): ("q5", "a", "R"),("q1", "b"): ("q2", "b", "R"),("q2", "a"): ("q5", "a", "R"),("q2", "b"): ("q3", "b", "R"),
+                                    ("q3", "a"): ("q4", "a", "R"),("q3", "b"): ("q3", "b", "R"), ("q4", "a"): ("q5", "a", "R"),("q4", "b"): ("q3", "b", "R"),
+                                    ("q5", "a"): ("q5", "a", "R"),("q5", "b"): ("q3", "b", "R"),("q5", "B"): ("q6", "B", "R")
+                                    }
+                    app = MaquinaDeTuring("q1", ["q6"], "B", {"a":"a", "b":"b", "B":"B"}, transiciones)
+                    return app
+            except InitStateError as e:
+                print("\n\n"+"ERROR!!\n"+e.args[0]+"\n\n")
+                app = ""
                 return app
-            elif user_input == "2":
-                transiciones = {("q1", "A"): ("q2", "A", "R"), ("q1", "C"): ("q1", "C", "R"), ("q1", "B"): ("q3", "B", "R"), ("q2", "C"): ("q1", "C", "R")}
-                app = MaquinaDeTuring("q1", ["q3"], "B", {"A":"A", "C":"C", "B":"B"}, transiciones)
-                return app
-            elif user_input == "3":
-                transiciones = {("q1", "a"): ("q5", "a", "R"),("q1", "b"): ("q2", "b", "R"),("q2", "a"): ("q5", "a", "R"),("q2", "b"): ("q3", "b", "R"),
-                                ("q3", "a"): ("q4", "a", "R"),("q3", "b"): ("q3", "b", "R"), ("q4", "a"): ("q5", "a", "R"),("q4", "b"): ("q3", "b", "R"),
-                                ("q5", "a"): ("q5", "a", "R"),("q5", "b"): ("q3", "b", "R"),("q5", "B"): ("q6", "B", "R")
-                                }
-                app = MaquinaDeTuring("q1", ["q6"], "B", {"a":"a", "b":"b", "B":"B"}, transiciones)
-                return app
+
+    def printer(self, data):
+        if type(data) == Exception:
+            exc_msg = data[0]
+            data[0] = False
+        print("+--------------+---------+-----------+---------------+")
+        print("""|  Edo. Actual |Caracter |  Simbolo  |Edo. Siguiente |""")
+        print("+--------------+---------+-----------+---------------+")
+        for fase in len(data[1]["Edo. Actual"]):
+            print("|     ",data[1]["Edo. Actual"],"      |  ",data[1]["Caracter"],"    |",data[1]["Simbolo"]," |     ",data[1]["Edo. Siguiente"],"       |")
+            print("+--------------+---------+-----------+---------------+")
+        if data[0]:
+            print("""|                Cadena Valida :)                    |""")
+        else:
+            print("""|              Cadena No Valida :(                   |""")
+        if type(data) == Exception:
+            print("ERROR!!\n"+exc_msg)
