@@ -1,16 +1,4 @@
 # Programe en Python los autómatas obtenidos en el ejercicio 2 del Trabajo Práctico Nº 2.
-# x ( x | y ) *
-# Q = {q1, q2, q3}
-# Ʃ = {x, y}
-# Г = {x, y, B}
-# s = q1
-# F = {q3}
-# δ dado por: 	δ(q1, x) = (q2, x, R)
-# 		δ(q2, x) = (q2, x, R)
-# 		δ(q2, y) = (q2, y, R)
-# 		δ(q2, B) = (q3, B, R)
-
-import re
 
 class InitStateError(Exception):
     pass
@@ -46,7 +34,7 @@ class MaquinaDeTuring():
         if self.blank != None:
             stringList.append(self.blank)
             stringList.insert(0, self.blank)
-            state[1] += 1
+            index += 1
         for iterations in range(0, len(stringList)*5):
             new_values = self.changeSt(state, stringList[index])
             state = new_values[0]
@@ -59,11 +47,11 @@ class MaquinaDeTuring():
         return [False, self.statesLog]
 
     def changeSt(self, st, char: str) -> tuple:
-        for index, key, value in enumerate(self.characters.items()):
-            if char in str(value):
-                self.statesLog["Simbolo"].append(key)
+        for index, element in enumerate(list(self.characters.items())):
+            if char in str(element[1]):
+                self.statesLog["Simbolo"].append(element[0])
                 break
-            elif index == len(self.characters.keys()-1):
+            elif index == len(self.characters.keys())-1:
                 raise ValueError(f"'{char}' no está entre los caracteres reconocidos", self.statesLog)
         self.statesLog["Edo. Actual"].append(st)
         self.statesLog["Caracter"].append(char)
@@ -80,9 +68,10 @@ class MaquinaDeTuringApp():
         pass
 
     def run(self):
-        print("Esta aplicacion interpreta maquinas de turing y las ejecuta para cumplir su proposito")
+        print("\n\nEsta aplicacion interpreta maquinas de turing y las ejecuta para cumplir su proposito.\n")
+        app = ""
         while type(app) == str:
-            user_input = input("Si quiere probar una de las maquinas ya cargadas oprima 'enter', de lo contrario, si desea introducir su propia maquina ingrese 'nueva'  ")
+            user_input = input("Si quiere probar una de las maquinas ya cargadas oprima 'enter', de lo contrario, si desea introducir su propia maquina ingrese 'nueva':  ")
             if user_input in ["nueva", "Nueva", "NUEVA"]:
                 app = self.newTM()
             else:
@@ -93,10 +82,10 @@ class MaquinaDeTuringApp():
             print("\n"+user_input+"\n")
             try:
                 if user_input2 != "" and user_input2.isdigit():
-                    self.printer(app.analyse(user_input, user_input2))
+                    self.printer(app.analyse(user_input, int(user_input2)))
                 else: 
-                    self.printer(result = app.analyse(user_input))
-            except Exception as e:
+                    self.printer(app.analyse(user_input))
+            except (ValueError or CharacterNotPresentError) as e:
                 self.printer(e.args)
             user_input = input("Si desea ingresar una cadena nueva oprima el 'enter', sino ingrese 'no' para salir:  ")
             if user_input in ["no", "No", "NO"]:
@@ -188,12 +177,18 @@ class MaquinaDeTuringApp():
         print("+--------------+---------+-----------+---------------+")
         print("""|  Edo. Actual |Caracter |  Simbolo  |Edo. Siguiente |""")
         print("+--------------+---------+-----------+---------------+")
-        for fase in len(data[1]["Edo. Actual"]):
-            print("|     ",data[1]["Edo. Actual"],"      |  ",data[1]["Caracter"],"    |",data[1]["Simbolo"]," |     ",data[1]["Edo. Siguiente"],"       |")
+        for fase in range(0, len(data[1]["Edo. Actual"])):
+            print("|     ",data[1]["Edo. Actual"][fase],"     |   ",data[1]["Caracter"][fase],"   |    ", data[1]["Simbolo"][fase],"    |     ",data[1]["Edo. Siguiente"][fase],"      |")
             print("+--------------+---------+-----------+---------------+")
         if data[0]:
             print("""|                Cadena Valida :)                    |""")
+            print("+--------------+---------+-----------+---------------+\n\n")
         else:
             print("""|              Cadena No Valida :(                   |""")
+            print("+--------------+---------+-----------+---------------+\n\n")
         if type(data) == Exception:
             print("ERROR!!\n"+exc_msg)
+
+if __name__ == "__main__":
+    app = MaquinaDeTuringApp()
+    app.run()
