@@ -19,16 +19,16 @@ class MaquinaDeTuring():
         caracteres: {"a":"a","operador":"+-*/","num": "123456789"}\n
         transiciones: {("q1","a"): ("q2","b","r | l")}
         """
-        self.initSt = estado_inicial
-        self.endSts = estados_finales
-        self.blank = caracter_vacio
-        self.characters = caracteres
+        self.initSt      = estado_inicial
+        self.endSts      = estados_finales
+        self.blank       = caracter_vacio
+        self.characters  = caracteres
         self.transitions = transiciones
         if self.initSt not in [key[0] for key in self.transitions.keys()]:
             raise InitStateError("El estado de inicio no esta incluido en las transiciones")
-        self.statesLog = {"Edo. Actual": [], "Caracter": [], "Simbolo": [], "Edo. Siguiente": []}
 
     def analyse(self, string: str, startPoint: int = 0) -> list:
+        self.statesLog = {"Edo. Actual": [], "Caracter": [], "Simbolo": [], "Edo. Siguiente": []}
         stringList = list(string)
         state, index = self.initSt, startPoint
         if self.blank != None:
@@ -41,7 +41,7 @@ class MaquinaDeTuring():
             stringList[index] = new_values[1]
             if stringList[index] == self.blank and str(state) in self.endSts:
                 return [True, self.statesLog]
-            index += 1 if new_values[2] in ["r","R"] else -1
+            index += 1 if new_values[2].lower() == 'r' else -1
             if (index+1 > len(stringList) or index < 0) and str(state) in self.endSts:
                 return [True, self.statesLog]
         return [False, self.statesLog]
@@ -72,16 +72,16 @@ class MaquinaDeTuringApp():
         app = ""
         while type(app) == str:
             user_input = input("Si quiere probar una de las maquinas ya cargadas oprima 'enter', de lo contrario, si desea introducir su propia maquina ingrese 'nueva':  ").replace(" ", "")
-            if user_input in ["nueva", "Nueva", "NUEVA"]:
+            if user_input.lower() == 'nueva':
                 app = self.newTM()
             else:
                 app = self.selectTM()
         while True:
             user_input = input("Ingrese una cadena a evaluar y presione 'enter':  ").replace(" ", "")
             user_input2 = input("Si desea comenzar a analizar la cadena desde un caracter en particular ingrese el numero, sino presione 'enter' y comenzara por la izquierda:  ").replace(" ", "")
-            print("\n"+user_input+"\n")
+            print(f"\n{user_input}\n")
             try:
-                if user_input2 != "" and user_input2.isdigit():
+                if user_input2.isdigit():
                     user_input2 = 0 if int(user_input2) > len(user_input) else user_input2
                     self.printer(app.analyse(user_input, int(user_input2)))
                 else: 
@@ -89,7 +89,7 @@ class MaquinaDeTuringApp():
             except (ValueError, CharacterNotPresentError) as e:
                 self.printer(e)
             user_input = input("Si desea ingresar una cadena nueva oprima el 'enter', sino ingrese 'no' para salir:  ").replace(" ", "")
-            if user_input in ["no", "No", "NO"]:
+            if user_input.lower() == 'no':
                 break
 
     def newTM(self):
@@ -143,11 +143,11 @@ class MaquinaDeTuringApp():
             return app
         
     def selectTM(self):
-        print("Seleccione una de las siguientes opciones")
-        print("1) Maquina A, reconoce el lenguaje representado por esta expresion regular: 'x ( x | y ) *' (Automata ejercicio 2)a)")
-        print("2) Maquina B, reconoce el lenguaje representado por esta expresion regular: '(C | AC) *' (Automata ejercicio 2)b)")
-        print("3) Maquina C, reconoce el lenguaje representado por esta expresion regular: '(b | (b* a) *) a' (Automata ejercicio 2)c)")
-        print("4) Maquina D, reconoce el lenguaje de las operaciones aritmeticas (+,-,*,/) entre digitos")
+        print(f"""Seleccione una de las siguientes opciones)
+        1. Maquina A, (Automata ejercicio 2.a.)reconoce el lenguaje representado por esta expresion regular: {'x ( x | y ) *':15} 
+        2. Maquina B, reconoce el lenguaje representado por esta expresion regular: {'(C | AC) *':15} (Automata ejercicio 2.b.)
+        3. Maquina C, reconoce el lenguaje representado por esta expresion regular: {'(b | (b* a) *) a':15} (Automata ejercicio 2.c.)
+        4. Maquina D, reconoce el lenguaje de las operaciones aritmeticas (+,-,*,/) entre digitos""")
         while True:
             try:
                 user_input = input("Ingrese el numero correspondiente a la maquina que desea utilizar:  ").replace(" ", "")
@@ -186,7 +186,7 @@ class MaquinaDeTuringApp():
         print("""|  Edo. Actual |Caracter |  Simbolo  |Edo. Siguiente |""")
         print("+--------------+---------+-----------+---------------+")
         for fase in range(0, len(data[1]["Edo. Siguiente"])):
-            print("|     ",data[1]["Edo. Actual"][fase],"     |   ",data[1]["Caracter"][fase],"   |    ", data[1]["Simbolo"][fase],"    |     ",data[1]["Edo. Siguiente"][fase],"      |")
+            print("|     ",data[1]["Edo. Actual"][fase],"     |   ",data[1]["Caracter"][fase],"   | ", f'{data[1]["Simbolo"][fase]:8}',"|     ",data[1]["Edo. Siguiente"][fase],"      |")
             print("+--------------+---------+-----------+---------------+")
         if data[0]:
             print("""|                Cadena Valida :)                    |""")
@@ -195,7 +195,7 @@ class MaquinaDeTuringApp():
             print("""|              Cadena No Valida :(                   |""")
             print("+--------------+---------+-----------+---------------+\n\n")
         print(exc_msg, end="")
-
+        data.clear()
 
 if __name__ == "__main__":
     app = MaquinaDeTuringApp()

@@ -19,3 +19,4 @@ numero_dia = dt.weekday()
 #     buscar en todos los registros si ambas fechas son vacias
 #     Guardar fechas de fin de semana y feriadas precargadas en un archivo para agilizar la comparacion.
 #     https://www.youtube.com/watch?v=DMYK-58U0Tk
+
