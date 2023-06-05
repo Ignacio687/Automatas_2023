@@ -6,6 +6,8 @@ class InitStateError(Exception):
 class CharacterNotPresentError(Exception):
     pass
 
+class EmptyInput(Exception):
+    pass
 class MaquinaDeTuring():
     def __init__(self, 
                  estado_inicial: str | int, 
@@ -78,16 +80,19 @@ class MaquinaDeTuringApp():
                 app = self.selectTM()
         while True:
             user_input = input("Ingrese una cadena a evaluar y presione 'enter':  ").replace(" ", "")
-            user_input2 = input("Si desea comenzar a analizar la cadena desde un caracter en particular ingrese el numero, sino presione 'enter' y comenzara por la izquierda:  ").replace(" ", "")
-            print(f"\n{user_input}\n")
             try:
+                if not user_input:
+                    raise EmptyInput("No puedes ingresar una cadena vacía")
+                user_input2 = input("Si desea comenzar a analizar la cadena desde un caracter en particular ingrese el numero, sino presione 'enter' y comenzara por la izquierda:  ").replace(" ", "")
+                print(f"\n{user_input}\n")
                 if user_input2.isdigit():
                     user_input2 = 0 if int(user_input2) > len(user_input) else user_input2
                     self.printer(app.analyse(user_input, int(user_input2)))
                 else: 
                     self.printer(app.analyse(user_input))
-            except (ValueError, CharacterNotPresentError) as e:
+            except (ValueError, CharacterNotPresentError, EmptyInput) as e:
                 self.printer(e)
+            
             user_input = input("Si desea ingresar una cadena nueva oprima el 'enter', sino ingrese 'no' para salir:  ").replace(" ", "")
             if user_input.lower() == 'no':
                 break
@@ -144,9 +149,9 @@ class MaquinaDeTuringApp():
         
     def selectTM(self):
         print(f"""Seleccione una de las siguientes opciones)
-        1. Maquina A, (Automata ejercicio 2.a.)reconoce el lenguaje representado por esta expresion regular: {'x ( x | y ) *':15} 
-        2. Maquina B, reconoce el lenguaje representado por esta expresion regular: {'(C | AC) *':15} (Automata ejercicio 2.b.)
-        3. Maquina C, reconoce el lenguaje representado por esta expresion regular: {'(b | (b* a) *) a':15} (Automata ejercicio 2.c.)
+        1. Maquina A, (Automata ejercicio 2.a.) reconoce el lenguaje representado por esta regexp: {'x ( x | y ) *'} 
+        2. Maquina B, (Automata ejercicio 2.b.) reconoce el lenguaje representado por esta regexp: {'(C | AC) *'} 
+        3. Maquina C, (Automata ejercicio 2.c.) reconoce el lenguaje representado por esta regexp: {'(b | (b* a) *) a'} 
         4. Maquina D, reconoce el lenguaje de las operaciones aritmeticas (+,-,*,/) entre digitos""")
         while True:
             try:
@@ -177,6 +182,10 @@ class MaquinaDeTuringApp():
                 return app
 
     def printer(self, data):
+        if type(data) == EmptyInput:
+            print(data.args[0],'\n')
+            return None
+
         exc_msg = ""
         if type(data) in [ValueError, CharacterNotPresentError]:
             data = list(data.args)
@@ -186,7 +195,11 @@ class MaquinaDeTuringApp():
         print("""|  Edo. Actual |Caracter |  Simbolo  |Edo. Siguiente |""")
         print("+--------------+---------+-----------+---------------+")
         for fase in range(0, len(data[1]["Edo. Siguiente"])):
-            print("|     ",data[1]["Edo. Actual"][fase],"     |   ",data[1]["Caracter"][fase],"   | ", f'{data[1]["Simbolo"][fase]:8}',"|     ",data[1]["Edo. Siguiente"][fase],"      |")
+            edo_actual = data[1]["Edo. Actual"][fase]
+            caracter = data[1]["Caracter"][fase]
+            simbolo = data[1]["Simbolo"][fase]
+            edo_siguiente = data[1]["Edo. Siguiente"][fase]
+            print(f"|      {edo_actual}      |    {caracter}    |  {simbolo:8} |      {edo_siguiente}       |")
             print("+--------------+---------+-----------+---------------+")
         if data[0]:
             print("""|                Cadena Valida :)                    |""")
@@ -195,7 +208,6 @@ class MaquinaDeTuringApp():
             print("""|              Cadena No Valida :(                   |""")
             print("+--------------+---------+-----------+---------------+\n\n")
         print(exc_msg, end="")
-        data.clear()
 
 if __name__ == "__main__":
     app = MaquinaDeTuringApp()
