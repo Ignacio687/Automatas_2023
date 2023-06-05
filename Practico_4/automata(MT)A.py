@@ -1,5 +1,4 @@
 # Programe en Python los autómatas obtenidos en el ejercicio 2 del Trabajo Práctico Nº 2.
-
 class InitStateError(Exception):
     pass
 
@@ -66,9 +65,6 @@ class MaquinaDeTuring():
         
 
 class MaquinaDeTuringApp():
-    def __init__(self):
-        pass
-
     def run(self):
         print("\n\nEsta aplicacion interpreta maquinas de turing y las ejecuta para cumplir su proposito.\n")
         app = ""
