@@ -4,3 +4,4 @@ venv/
 env
 settings.json
 .DS_Store
+*/*.csv
