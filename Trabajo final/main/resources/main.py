@@ -16,26 +16,22 @@
 #     Guardar fechas de fin de semana y feriadas precargadas en un archivo para agilizar la comparacion.
 #     https://www.youtube.com/watch?v=DMYK-58U0Tk
 #{'Input_Octects', 'ID_Conexión_unico', 'FIN_de_Conexión_Dia', 'Unnamed: 17', 'Usuario', 'MAC_Cliente', 'Tipo__conexión', 'ID', 'Session_Time', 'Unnamed: 16', 'ID_Sesion', 'IP_NAS_AP', #'Razon_de_Terminación_de_Sesión', 'MAC_AP', 'Inicio_de_Conexión_Dia', 'Inicio_de_Conexión_Hora', 'Output_Octects', 'FIN_de_Conexión_Hora'}
-import datetime
-import pandas as pd
-import numpy as np
-import time
-from dask import dataframe as df1
+
+import datetime, time, pandas as pd, numpy as np, re
+from dask import dataframe as df
+
 def is_weekend(date):
     return date.weekday() >= 5  # 5 representa el sábado, 6 representa el domingo
 
 if __name__ == '__main__':
-    dask_df = df1.read_csv('Trabajo final/archivo.csv', dtype={'Input_Octects': 'object',
-                                                            'Output_Octects': 'object',
-                                                            'Session_Time': 'object',
-                                                            'Unnamed: 16': 'object',
-                                                            'Unnamed: 17': 'object'})
+    dask_df = df.read_csv('data.csv')
+
     usuarios = dask_df['Usuario']
     mac_usuarios = dask_df['MAC_Cliente']
     mac_AP = dask_df['MAC_AP']
     inicio_conexion = dask_df['Inicio_de_Conexión_Dia']
     fin_conexion = dask_df['FIN_de_Conexión_Dia']
-    fecha_inicio = '2023-01-28'
+    fecha_inicio = '2022-01-28'
     fecha_fin = '2023-01-29'
     date_filter = (inicio_conexion >= fecha_inicio) & (fin_conexion <= fecha_fin)
     usuarios_filtrados = usuarios[date_filter].compute()
