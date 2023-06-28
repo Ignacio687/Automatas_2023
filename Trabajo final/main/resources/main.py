@@ -17,14 +17,14 @@
 #     https://www.youtube.com/watch?v=DMYK-58U0Tk
 #{'Input_Octects', 'ID_Conexión_unico', 'FIN_de_Conexión_Dia', 'Unnamed: 17', 'Usuario', 'MAC_Cliente', 'Tipo__conexión', 'ID', 'Session_Time', 'Unnamed: 16', 'ID_Sesion', 'IP_NAS_AP', #'Razon_de_Terminación_de_Sesión', 'MAC_AP', 'Inicio_de_Conexión_Dia', 'Inicio_de_Conexión_Hora', 'Output_Octects', 'FIN_de_Conexión_Hora'}
 
-import datetime, time, pandas as pd, numpy as np, re
+import datetime, time, pandas as pd, numpy as np, re, pathlib
 from dask import dataframe as df
 
 def is_weekend(date):
     return date.weekday() >= 5  # 5 representa el sábado, 6 representa el domingo
 
 if __name__ == '__main__':
-    dask_df = df.read_csv('data.csv')
+    dask_df = df.read_csv(pathlib.Path.cwd().joinpath("data.csv"))
 
     usuarios = dask_df['Usuario']
     mac_usuarios = dask_df['MAC_Cliente']

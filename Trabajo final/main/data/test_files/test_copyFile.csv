@@ -1,5 +1,5 @@
 ID,ID_Sesion,ID_Conexión_unico,Usuario,IP_NAS_AP,Tipo__conexión,Inicio_de_Conexión_Dia,Inicio_de_Conexión_Hora,FIN_de_Conexión_Dia,FIN_de_Conexión_Hora,Session_Time,Input_Octects,Output_Octects,MAC_AP,MAC_Cliente,Razon_de_Terminación_de_Sesión,,
 603877,5AA0184E-000001CA,d6104707df0cd315,invitado-deca,192.168.247.11,Wireless-802.11,2019-02-07,19:46:08,2019-03-13,11:27:57,25,39517,505219,DC-9F-DB-12-F3-EA:HCDD,DC-BF-E9-1A-B5-D0,User-Request,,
+Eliminate, me
 802225,00000019-00000379,69d4677fa7a8fe23,invitado-deca,192.168.247.18,Wireless-802.11,2019-08-21,12:46:57,2020-02-19,19:42:50,4,0,0,04-18-D6-C2-0A-F7:HCDD,A8-51-5B-68-5D-F6,User-Request,,
-625577,5AA0184E-000002A4,eddcdc34589f2d81,invitado-deca,192.168.247.12,Wireless-802.11,2019-02-26,10:14:57,2019-02-26,10:15:34,36,3084,1344,DC-9F-DB-12-F4-75:HCDD,E0-98-61-F5-0B-1F,User-Request,,
-664734,00000019-0000011A,a8ec39615357630e,invitado-deca,192.168.247.18,Wireless-802.11,2019-04-03,10:19:16,2020-02-05,13:58:31,32,0,0,04-18-D6-C1-0A-F7:HCDD,30-4B-07-8A-55-EA,User-Request,,
+Also, me
