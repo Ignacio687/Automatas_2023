@@ -1,5 +1,5 @@
 from .data_analyzer import DataAnalyzer
-import time
+from datetime import time, datetime
 
 class UserInterface():
     def __init__(self) -> None:
@@ -21,7 +21,7 @@ class UserInterface():
 What de you want to do?:
 1. Search for errors in the file
 2. Remove lines of the file
-3. Filters Users that have accessed the system on Non-working Days}
+3. Filters Users that have accessed the system on Non-working Days
 '''):
                 
                 case '1':
@@ -32,7 +32,17 @@ What de you want to do?:
                     print(data.generateFile(path))
                     
                 case '3':
-                    pass
+                    print("Searching beetwen dates...")
+                    while True:
+                        try:
+                            startDate = datetime.strptime(input('Write the Start date: '), "%Y-%m-%d")
+                            endDate = datetime.strptime(input('Write the End date: '), "%Y-%m-%d")
+                            if startDate > endDate:
+                                print("Error in dates. Start must be before End date. Try Agian \n")
+                                continue
+                            break
+                        except ValueError:
+                            print("Time data written does not match format '%Y-%m-%d'.Try Again")
 
                 case 'exit':
                     break
