@@ -1,2 +1,2 @@
-from .data_analyzer import DataAnalyzer, IncorrectFileFormat
+from .data_analyzer import DataAnalyzer, IncorrectFileExtensionError, modeIndexOutOfRangeError
 from .user_interface import UserInterface
