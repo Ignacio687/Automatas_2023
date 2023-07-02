@@ -6,3 +6,5 @@ settings.json
 .DS_Store
 */*.csv
 Trabajo final/main/data/*.csv
+*/main/data/test_files/test_mati.csv
+*/main/data/test_files/test_mati2.csv
