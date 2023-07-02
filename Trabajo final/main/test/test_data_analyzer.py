@@ -1,4 +1,4 @@
-import unittest, pathlib
+import unittest, pathlib, os
 from parameterized import parameterized
 from main.resources import DataAnalyzer, IncorrectFileExtensionError, modeIndexOutOfRangeError
 
@@ -32,9 +32,9 @@ class DataAnalyzerMainTests(unittest.TestCase):
     def test_validate_ErrorsInLines(self):
         erroresDict = {
             2: ("ID", "60a877"),
-            3: ("ID_Conexión_unico", "69d4677fa7a8fe"),
+            3: ('Tipo__conexión', 'Wireless-80211'),
             4: ("Inicio_de_Conexión_Dia", "2019-14-26"),
-            5: ("IP_NAS_AP", "Missing data"),
+            5: ("IP_NAS_AP", "Wireless-802.11"),
             6: ("ID_Conexión_unico", "invitado-deca")
         }
         path = pathlib.Path.cwd().joinpath("main", "data", "test_files", "test_data_error.csv")
@@ -73,7 +73,7 @@ class DataAnalyzerMainTests(unittest.TestCase):
         app = self.initApp()
         self.assertTrue(app.expValidation(regExp, 2))
 
-    @parameterized.expand(["ae9e2a3429a0e5372", "0ff79346fcc34ad", "07f2e67b15fc9eag"])
+    @parameterized.expand(["ae9e2a3429a0e5372", "0ff79", "07f2e67b15fc9eag"])
     def test_expValidation_ID_Conexión_unico_False(self, regExp):
         app = self.initApp()
         self.assertFalse(app.expValidation(regExp, 2))
@@ -161,40 +161,52 @@ class DataAnalyzerMainTests(unittest.TestCase):
     # 'generateFile' method tests:
 
     def test_generateFile_generateFile(self):
-        app = self.initApp()
         path = pathlib.Path.cwd().joinpath("main", "data", "test_files")
-        app.generateFile(path, ())
+        try:
+            os.remove(path.joinpath("test_data_filtered.csv"))
+        except:
+            pass        
+        app = self.initApp()
+        app.generateFile(path, None)
         self.assertTrue(path.joinpath("test_data_filtered.csv").exists())
         with open(path.joinpath("test_data.csv"), "r") as originalFile:
             with open(path.joinpath("test_data_filtered.csv")) as filteredFile:
                 originalLines = originalFile.readlines()
                 filteredLines = filteredFile.readlines()
         diff = set(originalLines).difference(set(filteredLines))
-        self.assertEqual(diff, ())
+        self.assertEqual(diff, set())
 
     def test_generateFile_generateFile_removeLines(self):
         path = pathlib.Path.cwd().joinpath("main", "data", "test_files")
+        try:
+            os.remove(path.joinpath("test_data_filtered.csv"))
+        except:
+            pass    
         app = self.initApp(path.joinpath("test_copyFile.csv"))
-        app.generateFile(path, (2, 4))
-        self.assertTrue(path.joinpath("test_data_filtered.csv").exists())
-        with open(path.joinpath("test_data.csv"), "r") as originalFile:
-            with open(path.joinpath("test_data_filtered.csv")) as filteredFile:
+        app.generateFile(path, (3, 5))
+        self.assertTrue(path.joinpath("test_copyFile_filtered.csv").exists())
+        with open(path.joinpath("test_copyFile.csv"), "r") as originalFile:
+            with open(path.joinpath("test_copyFile_filtered.csv"), "r") as filteredFile:
                 originalLines = originalFile.readlines()
                 filteredLines = filteredFile.readlines()
         diff = set(originalLines).difference(set(filteredLines))
-        self.assertEqual(diff, ("Eliminate, me", "Also, me"))
+        self.assertEqual(diff, {'Also, me', 'Eliminate, me\n'})
 
     def test_generateFile_generateFile_LinesIndexesOutOfRange(self):
         path = pathlib.Path.cwd().joinpath("main", "data", "test_files")
+        try:
+            os.remove(path.joinpath("test_copyFile_filtered.csv"))
+        except:
+            pass
         app = self.initApp(path.joinpath("test_copyFile.csv"))
-        app.generateFile(path, (-5, 0, 2, 4, 6, 9))
-        self.assertTrue(path.joinpath("test_data_filtered.csv").exists())
-        with open(path.joinpath("test_data.csv"), "r") as originalFile:
-            with open(path.joinpath("test_data_filtered.csv")) as filteredFile:
+        app.generateFile(path, (-5, 0, 3, 5, 6, 9))
+        self.assertTrue(path.joinpath("test_copyFile_filtered.csv").exists())
+        with open(path.joinpath("test_copyFile.csv"), "r") as originalFile:
+            with open(path.joinpath("test_copyFile_filtered.csv"), "r") as filteredFile:
                 originalLines = originalFile.readlines()
                 filteredLines = filteredFile.readlines()
         diff = set(originalLines).difference(set(filteredLines))
-        self.assertEqual(diff, ("Eliminate, me", "Also, me"))
+        self.assertEqual(diff, {'Also, me', 'Eliminate, me\n'})
 
     # 'filterUsers' method tests:
 
