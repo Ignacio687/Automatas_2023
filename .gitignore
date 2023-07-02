@@ -5,3 +5,5 @@ env
 settings.json
 .DS_Store
 */*.csv
+*/main/data/test_files/test_mati.csv
+*/main/data/test_files/test_mati2.csv
