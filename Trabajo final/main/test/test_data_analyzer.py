@@ -31,9 +31,11 @@ class DataAnalyzerMainTests(unittest.TestCase):
 
     def test_validate_ErrorsInLines(self):
         erroresDict = {
-            1: ["60a877,5AA0184E000001CA,d6104707df0cd3153,invitado-deca,192.168.24711,Wireles-802.11,2019--07,19:4608,20-03-13,11:2757,25a,39517b,505219c,DC-9F-DB12-F3-EA:HDD,DC-BF-E9-1-B5-D0,Usr-Request"],
-            2: ["000000a19-00000379,69d4677fa7a8fe,Wireless-80211,12:46:a57,04-18-D6-C2-0A-F7:HC,A8-51-5B-68a-5D-F6,i dont know,,"],
-            3: ["2019-14-26"]
+            2: ("ID", "60a877"),
+            3: ("ID_Conexión_unico", "69d4677fa7a8fe"),
+            4: ("Inicio_de_Conexión_Dia", "2019-14-26"),
+            5: ("IP_NAS_AP", "Missing data"),
+            6: ("ID_Conexión_unico", "invitado-deca")
         }
         path = pathlib.Path.cwd().joinpath("main", "data", "test_files", "test_data_error.csv")
         self.assertEqual(self.initApp(path).validate(), erroresDict)
@@ -116,7 +118,7 @@ class DataAnalyzerMainTests(unittest.TestCase):
         app = self.initApp()
         self.assertFalse(app.expValidation(regExp, 6))
 
-    @parameterized.expand(["24:60:60", "00:00:00", "18:05:45"])
+    @parameterized.expand(["24:60:60", "00:00:00", "18:05:45", "19:46:08"])
     def test_expValidation_Inicio_de_Conexión_Hora(self, regExp):
         app = self.initApp()
         self.assertTrue(app.expValidation(regExp, 7))
