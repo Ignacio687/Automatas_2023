@@ -60,17 +60,17 @@ class DataAnalyzer():
         filter: if set to False method returns complete list of users\n
         startDate/endDate: if either of them is set to None, the method will take the most old or 
         new date available respectively."""
-        """
-        ID,ID_Sesion,ID_Conexión_unico,Usuario,IP_NAS_AP,Tipo__conexión,Inicio_de_Conexión_Dia,Inicio_de_Conexión_Hora,FIN_de_Conexión_Dia,FIN_de_Conexión_Hora,
-        Session_Time,Input_Octects,Output_Octects,MAC_AP,MAC_Cliente,Razon_de_Terminación_de_Sesión,,
-        603877,5AA0184E-000001CA,d6104707df0cd315,invitado-deca,192.168.247.11,Wireless-802.11,2019-02-07,19:46:08,2019-03-13,11:27:57,25,39517,505219,DC-9F-DB-12-F3-EA:HCDD,DC-BF-E9-1A-B5-D0,User-Request,,
-        """
-        fecha_inicio = startDate
-        fecha_fin = endDate
-        if fecha_inicio == None:
+
+        if startDate == '':
             fecha_inicio = date(2000, 3, 27) # Fecha antigua para incluir todos los resultados
-        if fecha_fin == None:
+        else:
+            fecha_inicio = startDate
+
+        if endDate == '':
             fecha_fin = date.today()
+        else:
+            fecha_fin = endDate
+    
         if fecha_fin < fecha_inicio:
             fecha_fin, fecha_inicio = fecha_inicio, fecha_fin
         self.fecha_inicio = fecha_inicio
