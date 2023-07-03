@@ -138,21 +138,7 @@ class DataAnalyzer():
                         return True
                     fecha_actual += timedelta(days=1)
                 return False
-        file = open(self.filePath, "r")
-        headers = file.readline().split(",")
-        if os.path.splitext(self.filePath)[1] != ".csv":
-            file.close()
-            raise IncorrectFileExtensionError("Not a 'csv' type file")
-        pool = multiprocessing.Pool()
-        fileLines = file.readlines()
-        arguments = ((line, index+2, headers) for index, line in enumerate(fileLines))
-        errorsList = pool.starmap(self.subprocessValidation, arguments)
-        errorsDict = {}
-        for errorDict in errorsList:
-            if errorDict != {}:
-                errorsDict.update(errorDict)
-        file.close()
-        
+
         if startDate == '':
             fecha_inicio = date(2000, 1, 1) # Fecha antigua para incluir todos los resultados
         else:
@@ -166,27 +152,38 @@ class DataAnalyzer():
         user_data = {}
         with open(self.filePath) as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
-            for index,row in enumerate(csv_reader):
+            for row in csv_reader:
                 inicio_conexion = datetime.strptime(row['Inicio_de_Conexión_Dia'], "%Y-%m-%d").date() # type: ignore
                 fin_conexion    = datetime.strptime(row['FIN_de_Conexión_Dia'], "%Y-%m-%d").date() # type: ignore
-                session_time    = time(second=int(row['Session_Time']))
+                session_time    = int(row['Session_Time'])
                 username        = row['Usuario']
                 mac_cliente     = row['MAC_Cliente']
-                input_octetcs    = row['Input_Octects']
-                output_octects  = row['Output_Octects']
+                input_octetcs   = int(row['Input_Octects'])
+                output_octects  = int(row['Output_Octects'])
                 if inicio_conexion <= fecha_fin and fin_conexion >= fecha_inicio and is_weekend(max(inicio_conexion, fecha_inicio), min(fin_conexion, fecha_fin)): # type: ignore
                     if not user_data.get(username):
-                        user_data[username] = {mac_cliente: {}, }
+                        user_data[username] = {'most_used_mac':'', 'mac_most_time':'', mac_cliente: {}}
                     if not user_data[username].get(mac_cliente):
                         user_data[username][mac_cliente] = {'Session_Time':session_time, 'Input_Bytes':int(input_octetcs), 
                                                             'Output_Bytes':int(output_octects), 'Session_count':0,
-                                                            'Session_dates':[{'start':inicio_conexion, 'end':fin_conexion}]}
+                                                            'Session_dates':[inicio_conexion, fin_conexion]}
                     user_data[username][mac_cliente]['Session_Time'] += session_time
                     user_data[username][mac_cliente]['Input_Bytes'] += input_octetcs
                     user_data[username][mac_cliente]['Output_Bytes'] += output_octects
                     user_data[username][mac_cliente]['Session_count'] += 1
-                    user_data[username][mac_cliente]['Session_dates'].append({'start':inicio_conexion, 'end':fin_conexion})
-        return user_data, startDate, endDate
+                    mostUsedMac = ['','',-1,-1]
+                    for index, mac in enumerate(user_data[username].keys()):
+                        if index > 1:
+                            if mostUsedMac[2] < user_data[username].get(mac)['Session_count']:
+                                mostUsedMac[0] = mac
+                            if mostUsedMac[3] < user_data[username].get(mac)['Session_Time']:
+                                mostUsedMac[1] = mac
+                    user_data[username]['most_used_mac'] = mostUsedMac[0]
+                    user_data[username]['mac_most_time'] = mostUsedMac[1]
+                    initDate = user_data[username][mac_cliente]['Session_dates']
+                    initDate[0] = initDate[0] if initDate[0] < inicio_conexion else inicio_conexion
+                    initDate[1] = initDate[1] if initDate[1] > fin_conexion else fin_conexion
+        return user_data, fecha_inicio, fecha_fin 
 
         
         tuple[dict[str, dict[str, int]], date|str, date|str]
@@ -220,27 +217,25 @@ class DataAnalyzer():
                 'Output_Octects': 430077045, 
                 'Session_count': 3}
                 }
-        """"
+        """
 
     def exportExcel(self, user_data): 
-        sheet = {}
-        alphabet = list(string.ascii_uppercase)
+        sheet, alphabet = {},list(string.ascii_uppercase)
+        alphabet.remove('A') # A es la columna de las MAC
+        workbook = openpyxl.Workbook()
         for user in user_data.keys():
             sheet[user] = workbook.create_sheet(user)
-            most_used_mac = ''
-            mac_most_time = ''
-            for i,mac in enumerate(user.keys()):
-                if i > 2:
-                    sheet[user][f'A{i}'] = mac
-                else:
-                    most_used_mac = mac['most_used_mac']
-                    mac_most_time = mac['most_used_time']
-                for (columns, value), letter in zip(mac.items(), alphabet):
-                    sheet[user][f'{letter}1'] = columns
-                    sheet[user][f'{letter}2'] = value
-                    
-        sheet1["A1"] = "Data 1"
-        sheet1["B1"] = "Data 2"
-        sheet2["A1"] = "Data 3"
-        sheet2["B1"] = "Data 4"
-        workbook.save("example.xlsx")
+            for index, mac in enumerate(user_data[user].keys()):
+                if index > 1:
+                    sheet[user][f'A{index}'] = mac  
+                    for (columns, value), letter in zip(user_data[user][mac].items(), alphabet):
+                        sheet[user][f'{letter}1'] = columns
+                        if columns != 'Session_dates':
+                            sheet[user][f'{letter}{index}'] = value
+                        else:
+                            sheet[user][f'{letter}{index}'] = 'value'
+            sheet[user]['G1'] = 'most_used_mac'
+            sheet[user]['G2'] = user_data[user]['most_used_mac']
+            sheet[user]['H1'] = 'mac_most_time'
+            sheet[user]['H2'] = user_data[user]['mac_most_time']
+        workbook.save(str(pathlib.Path().cwd().joinpath('main', 'data', "datos_usuario.xlsx")))
