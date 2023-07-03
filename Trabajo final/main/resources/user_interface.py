@@ -1,4 +1,4 @@
-from data_analyzer import DataAnalyzer
+from .data_analyzer import DataAnalyzer
 from datetime import time, datetime
 
 class UserInterface():
@@ -21,8 +21,9 @@ class UserInterface():
         print(f"\nVerificando el archivo, esto puede tardar unos segundos...")
         print("Buscando entre los usuarios que se han conectado días feriados y fines de semana..")
         while True:
-            #errors = data.validate()
-            #print(f"Se han encontrado [{len(errors)}] errores en el archivo original. Generando csv filtrado..")
+            errors = data.validate()
+            print(f"Se han encontrado [{len(errors)}] errores en el archivo original. Generando csv filtrado..")
+            data.generateFile(lines = tuple(errors.keys()))
             try:
                 #startDate = datetime.strptime(input('Ingrese la fecha inicial: '), "%Y-%m-%d").date()
                 #endDate = datetime.strptime(input('Ingrese la fecha final: '), "%Y-%m-%d").date()
@@ -33,5 +34,7 @@ class UserInterface():
                     print("Se debe ingresar la fecha en formate '%Y-%m-%d'. Intente de nuevo")
         data.filterUsers(startDate, endDate)
         print(f"\n{data.__str__()}")
+
+
 if __name__ == '__main__':
     UserInterface().run()

@@ -105,7 +105,7 @@ class DataAnalyzer():
             r"([0-9A-F]{2}-){5}[0-9A-F]{2}:HCDD",
             r"([0-9A-F]{2}-){5}[0-9A-F]{2}"
         ]
-        if mode not in range(0,13):
+        if mode not in range(0,11):
             raise modeIndexOutOfRangeError(f"{mode} is not a mode option")
         regExp = re.compile(regExpList[mode])
         if regExp.fullmatch(expresion):
@@ -123,7 +123,7 @@ class DataAnalyzer():
         path = path.joinpath(f"{fileName}_filtered.csv")
         with open(self.filePath, "r") as file:
             fileLines = file.readlines()
-        if lines != None:
+        if lines:
             linesToRemove = list(lines)
             linesToRemove.sort(reverse=True)
             for line in linesToRemove:
