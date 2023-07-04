@@ -1,4 +1,4 @@
-from data_analyzer import DataAnalyzer, IncorrectFileExtensionError
+from .data_analyzer import DataAnalyzer, IncorrectFileExtensionError
 from datetime import time, datetime, date, timedelta
 
 class UserInterface():
@@ -54,8 +54,12 @@ class UserInterface():
                 choice = input("Desesa exportar los datos a un archivo Excel ?(y,n) ")
                 if choice.lower() == 'y':
                     path = input('Escriba el path de destino del archivo: ')
-                    filename = f'reporte_{startDate}_{endDate}'
-                    data.exportExcel(userData, path, filename)
+                    try:
+                        filename = f'reporte_{startDate}_{endDate}'
+                        data.exportExcel(userData, path, filename)
+                    except:
+                        print("Path incorrecto")
+                        continue
                     break
                 elif choice.lower() == 'n':
                     break
