@@ -82,7 +82,7 @@ class UserInterface():
         
         final_str = ''
         for username in userData.keys():
-            final_str += f"\n\n{'-'*55} MOSTRANDO DATOS DESDE {startDate} HASTA {endDate} {'-'*55}\n"
+            final_str += f"\n\n{'-'*22} MOSTRANDO DATOS DESDE {startDate} HASTA {endDate} {'-'*22}\n"
             final_str += f"Username: {username} \n"
             final_str += f"\n\tDireccion MAC mas usada: {userData[username]['most_used_mac']}"
             final_str += f"\n\tDireccion MAC mas tiempo conectada: {userData[username]['mac_most_time']}\n"
@@ -97,8 +97,8 @@ class UserInterface():
                     session_time = str(timedelta(seconds = userData[username][mac]['Session_Time']))
                     final_str += f"\n\t\t{mac}:"
                     final_str += f"\n\t\t\t Fecha de inicio:      {start_date} | Fecha de finalizacion: {end_date}"
-                    final_str += f"\n\t\t\t Input Bytes:          {input_bytes:<10} | Output Bytes:     {output_bytes:<10} "
-                    final_str += f"\n\t\t\t Cantidad de sesiones: {session_count:<10} | Tiempo total:   {session_time}"
+                    final_str += f"\n\t\t\t Input Bytes:          {input_bytes:<10} | Output Bytes:          {output_bytes:<10} "
+                    final_str += f"\n\t\t\t Cantidad de sesiones: {session_count:<10} | Tiempo total:          {session_time}"
         return final_str
 
 if __name__ == '__main__':
