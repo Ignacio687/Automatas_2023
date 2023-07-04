@@ -1,4 +1,4 @@
-from data_analyzer import DataAnalyzer
+from data_analyzer import DataAnalyzer, IncorrectFileExtensionError
 from datetime import time, datetime, date, timedelta
 
 class UserInterface():
@@ -10,36 +10,61 @@ class UserInterface():
         print("Integrantes: \n\tBoldrini Matías, \n\tBourguet Tomás, \n\tChaves Ignacio")
         while True:
             try:
-                #path = input('Ingrese el path del archivo a analizar (.csv): ')
-                path = '/home/ignaciochaves/code/python/Automatas_2023/Trabajo final/main/data/data_filtered.csv'
+                path = input('Ingrese el path del archivo a analizar (.csv): ')
                 data = DataAnalyzer(path)
                 open(path)
                 break
-            except FileNotFoundError:   
+            except (FileNotFoundError, IsADirectoryError, IncorrectFileExtensionError):   
                 print("Archivo no encontrado, intenelo de nuevo")
         print(f"\nVerificando el archivo, esto puede tardar unos segundos...")
-        #errors = data.validate()
-        #print(f"Se han encontrado [{len(errors)}] errores en el archivo original. Generando csv filtrado..")
-        #data.generateFile(lines = tuple(errors.keys()))
-        while True:
-            try:
-                #fecha_inicio = input('Ingrese la fecha inicial: ')
-                #fecha_fin = input('Ingrese la fecha final: ')
-                # startDate = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
-                # endDate = datetime.strptime(fecha_fin, "%Y-%m-%d").date()
-                startDate = datetime.strptime('2019-11-22', "%Y-%m-%d").date()
-                endDate = datetime.strptime('2019-11-24', "%Y-%m-%d").date()
-                break
-            except ValueError:
-                if fecha_inicio == '' or fecha_fin == '':
-                    startDate, endDate = fecha_inicio, fecha_fin
+        errors = data.validate()
+        print(f"Se han encontrado [{len(errors)}] errores en el archivo original.")
+        if errors:
+            print("Generando csv filtrado..")
+            while True:
+                choice = input("Desea mostrar los errores por consola? (y/n) ")
+                if choice == "y":
+                    for error,detalles in errors.items():
+                        print(f'{error}:  {detalles}\n')
                     break
-                print("Se debe ingresar la fecha en formate '%Y-%m-%d'. Intente de nuevo")
-        print("Buscando entre los usuarios que se han conectado días feriados y fines de semana..")
-        userData, startDate, endDate = data.filterUsers(startDate, endDate)
-        print(self.strFormat(userData, startDate, endDate))
-        data.exportExcel(userData)
-
+                if choice == "n":
+                    break
+        data.generateFile(lines = tuple(errors.keys()))
+        while True:
+            while True:
+                try:
+                    fecha_inicio = input('Ingrese la fecha inicial: ')
+                    if fecha_inicio == '':
+                        startDate = date(2000, 1, 1) # Fecha antigua para incluir todos los resultados
+                    else:
+                        startDate = datetime.strptime(fecha_inicio, "%Y-%m-%d").date()
+                    fecha_fin_input = input('Ingrese la fecha final: ')
+                    if fecha_fin_input == '':
+                        endDate = date.today()
+                    else:
+                        endDate = datetime.strptime(fecha_fin_input, "%Y-%m-%d").date()
+                except ValueError as e:
+                    print("Se debe ingresar la fecha en formato 'YYYY-mm-dd'. Intente de nuevo")
+                else:
+                    break
+            print("Buscando entre los usuarios que se han conectado días feriados y fines de semana..")
+            userData, startDate, endDate = data.filterUsers(startDate, endDate)
+            print(self.strFormat(userData, startDate, endDate))
+            while True:
+                choice = input("Desesa exportar los datos a un archivo Excel ?(y,n) ")
+                if choice.lower() == 'y':
+                    path = input('Escriba el path de destino del archivo: ')
+                    filename = f'reporte_{startDate}_{endDate}'
+                    data.exportExcel(userData, path, filename)
+                    break
+                elif choice.lower() == 'n':
+                    break
+            while True:
+                choice = input("Desesa filtrar con otro rango de fechas?(y,n): ")
+                if choice.lower() == 'y':
+                    break
+                elif choice.lower() == 'n':
+                    exit()
 
     def strFormat(self, userData: dict[str, str|dict[str, int]], startDate: str|date, endDate: str|date):
         def format_bytes(size):
@@ -50,7 +75,7 @@ class UserInterface():
             size = round(size, 2)
             size_with_unit = str(size) + ' ' + units[exponent]
             return size_with_unit
-
+        
         final_str = ''
         for username in userData.keys():
             final_str += f"\n\n{'-'*55} MOSTRANDO DATOS DESDE {startDate} HASTA {endDate} {'-'*55}\n"
@@ -66,8 +91,10 @@ class UserInterface():
                     end_date        = userData[username][mac]['Session_dates'][1]
                     session_count   = userData[username][mac]['Session_count']
                     session_time = str(timedelta(seconds = userData[username][mac]['Session_Time']))
-                    final_str += f"\n\t\t{mac}: Start date: {start_date}  | End date: {end_date}"
-                    final_str += f"\n\t\t\t  Session time: {session_time:<18} | Input Bytes: {input_bytes:<10} | Output Bytes: {output_bytes:<10} | Session Count: {session_count} "
+                    final_str += f"\n\t\t{mac}:"
+                    final_str += f"\n\t\t\t Fecha de inicio:      {start_date} | Fecha de finalizacion: {end_date}"
+                    final_str += f"\n\t\t\t Input Bytes:          {input_bytes:<10} | Output Bytes:     {output_bytes:<10} "
+                    final_str += f"\n\t\t\t Cantidad de sesiones: {session_count:<10} | Tiempo total:   {session_time}"
         return final_str
 
 if __name__ == '__main__':

@@ -70,7 +70,7 @@ class DataAnalyzer():
             r"[0-9]+",
             r"[0-9A-F]{1,8}-?[0-9A-F]{1,8}",
             r"[0-9a-f]{8,16}",
-            r"[\w\.-]+",
+            r"[\w\.\-/=]+",
             r"((2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\.){3}(2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])",
             r"Wireless-802.11",
             r"(\d{4})(-)(0?[1-9]|1[012])\2(0?[1-9]|[12][0-9]|3[01])",
@@ -104,12 +104,13 @@ class DataAnalyzer():
                 if line-1 in range(1, len(fileLines)):
                     fileLines.pop(line-1)
         with open(path, "w") as file:
-            file.writelines([line.replace(',,',',') for line in fileLines if ',,' in line])
-            file.flush()
+            for line in fileLines:
+                file.write(line.replace(",,", ","))
+                file.flush()
         self.filePath = path.__str__()
         return path.__str__()
 
-    def filterUsers(self, startDate: date|str = '', endDate: date|str = '', filter: bool = True
+    def filterUsers(self, fecha_inicio: date|str = '', fecha_fin: date|str = '', filter: bool = True
                     ) -> tuple[dict[str, str|dict[str, int]], date|str, date|str]:
         """Method designed to filter the users that have accessed the system on Non-working days. 
         Returns a dictionary {user_name: [total_session_time, most_used_MAC_NWD, most_used_MAC_WD, 
@@ -138,15 +139,7 @@ class DataAnalyzer():
                         return True
                     fecha_actual += timedelta(days=1)
                 return False
-
-        if startDate == '':
-            fecha_inicio = date(2000, 1, 1) # Fecha antigua para incluir todos los resultados
-        else:
-            fecha_inicio = startDate
-        if endDate == '':
-            fecha_fin = date.today()
-        else:
-            fecha_fin = endDate
+        
         if fecha_fin < fecha_inicio: # type: ignore
             fecha_fin, fecha_inicio = fecha_inicio, fecha_fin
         user_data = {}
@@ -164,62 +157,35 @@ class DataAnalyzer():
                     if not user_data.get(username):
                         user_data[username] = {'most_used_mac':'', 'mac_most_time':'', mac_cliente: {}}
                     if not user_data[username].get(mac_cliente):
-                        user_data[username][mac_cliente] = {'Session_Time':session_time, 'Input_Bytes':int(input_octetcs), 
-                                                            'Output_Bytes':int(output_octects), 'Session_count':0,
+                        user_data[username][mac_cliente] = {'Session_Time':0, 'Input_Bytes':0, 
+                                                            'Output_Bytes':0, 'Session_count':0,
                                                             'Session_dates':[inicio_conexion, fin_conexion]}
                     user_data[username][mac_cliente]['Session_Time'] += session_time
                     user_data[username][mac_cliente]['Input_Bytes'] += input_octetcs
                     user_data[username][mac_cliente]['Output_Bytes'] += output_octects
                     user_data[username][mac_cliente]['Session_count'] += 1
-                    mostUsedMac = ['','',-1,-1]
+                    max_session_time = -1
+                    max_session_count = -1
+                    mac_with_max_session_time = ''
+                    mac_with_max_session_count = ''
                     for index, mac in enumerate(user_data[username].keys()):
                         if index > 1:
-                            if mostUsedMac[2] < user_data[username].get(mac)['Session_count']:
-                                mostUsedMac[0] = mac
-                            if mostUsedMac[3] < user_data[username].get(mac)['Session_Time']:
-                                mostUsedMac[1] = mac
-                    user_data[username]['most_used_mac'] = mostUsedMac[0]
-                    user_data[username]['mac_most_time'] = mostUsedMac[1]
+                            session_time  = user_data[username][mac]['Session_Time']
+                            session_count = user_data[username][mac]['Session_count']
+                            if session_time > max_session_time:
+                                max_session_time = session_time
+                                mac_with_max_session_time = mac
+                            if session_count > max_session_count:
+                                max_session_count = session_count
+                                mac_with_max_session_count = mac
+                    user_data[username]['most_used_mac'] = mac_with_max_session_count
+                    user_data[username]['mac_most_time'] = mac_with_max_session_time
                     initDate = user_data[username][mac_cliente]['Session_dates']
                     initDate[0] = initDate[0] if initDate[0] < inicio_conexion else inicio_conexion
                     initDate[1] = initDate[1] if initDate[1] > fin_conexion else fin_conexion
         return user_data, fecha_inicio, fecha_fin 
 
-        
-        tuple[dict[str, dict[str, int]], date|str, date|str]
-        """
-        'vcrezeandu': { 
-            'most_used_mac': '5A-A2-4A-B5-D1-5C',
-            'mac_most_time': '5A-A2-4A-B5-D1-5C'
-            '36-1B-11-E3-56-11': 
-                {
-                'Sessions':[
-                        {
-                            start:'2020',
-                            end:'2020'
-                        }, 
-                        ]
-                'Session_Time': 263, 
-                'Input_Octects': 193395,
-                'Output_Octects': 1909528, 
-                'Session_count': 2
-                }, 
-            '5A-A2-4A-B5-D1-5C': 
-                {
-                'Session_Time': 7193, 
-                'Input_Octects': 4340227285, 
-                'Output_Octects': 4349058647, 
-                'Session_count': 32
-                }, 
-            'AC-12-03-5E-16-04': {
-                'Session_Time': 4116, 
-                'Input_Octects': 23332858, 
-                'Output_Octects': 430077045, 
-                'Session_count': 3}
-                }
-        """
-
-    def exportExcel(self, user_data): 
+    def exportExcel(self, user_data, path: str, filename): 
         sheet, alphabet = {},list(string.ascii_uppercase)
         alphabet.remove('A') # A es la columna de las MAC
         workbook = openpyxl.Workbook()
@@ -230,12 +196,19 @@ class DataAnalyzer():
                     sheet[user][f'A{index}'] = mac  
                     for (columns, value), letter in zip(user_data[user][mac].items(), alphabet):
                         sheet[user][f'{letter}1'] = columns
-                        if columns != 'Session_dates':
-                            sheet[user][f'{letter}{index}'] = value
+                        if columns == 'Session_dates':
+                            sheet[user][f'{letter}{index}'] = f"{value[0]} / {value[1]}"
                         else:
-                            sheet[user][f'{letter}{index}'] = 'value'
+                            sheet[user][f'{letter}{index}'] = value
             sheet[user]['G1'] = 'most_used_mac'
             sheet[user]['G2'] = user_data[user]['most_used_mac']
             sheet[user]['H1'] = 'mac_most_time'
             sheet[user]['H2'] = user_data[user]['mac_most_time']
-        workbook.save(str(pathlib.Path().cwd().joinpath('main', 'data', "datos_usuario.xlsx")))
+        if not path:
+            try:
+                os.remove(str(pathlib.Path().cwd().joinpath('main', 'data', f"{filename}.xlsx")))
+            except:
+                pass
+            workbook.save(str(pathlib.Path().cwd().joinpath('main', 'data', f"{filename}.xlsx")))
+        else:
+            workbook.save(pathlib.Path(path).joinpath(f"{filename}.xlsx"))
