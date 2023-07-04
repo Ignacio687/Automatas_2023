@@ -4,3 +4,6 @@ Esta aplicaci√≥n permite tomar el archivo brindado para el proyecto en formato ‚
 
 ## Uso:
 ### Ejecutar el archivo "run.sh" (comando: ./run.sh) 
+Fuente feriados: 
+https://github.com/pjnovas/nolaborables/tree/master/lib/data/holidays
+https://www.argentina.gob.ar/interior/feriados-nacionales-2023
